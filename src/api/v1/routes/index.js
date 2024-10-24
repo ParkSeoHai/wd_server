@@ -11,5 +11,7 @@ routes.use("/user", require("./user.route"));
 routes.use("/customer", require("./customer.route"));
 // route category
 routes.use("/category", require("./category.route"));
+// route address_shop
+routes.use("/address_shop", require("./address_shop.route"));
 
 module.exports = routes;
