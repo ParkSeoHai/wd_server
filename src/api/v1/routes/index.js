@@ -7,6 +7,8 @@ const routes = express.Router();
 routes.use("/product", require("./product.route"));
 // route product_image
 routes.use("/product_image", require("./product_image.route"));
+// route product_detail
+routes.use("/product_detail", require("./product_detail.route"));
 // route user
 routes.use("/user", require("./user.route"));
 // route customer
