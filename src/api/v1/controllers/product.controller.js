@@ -1,15 +1,21 @@
 "use strict"
 
-const { SuccessResponse } = require('../core/success.response');
+const { OKResponse, CreatedResponse } = require('../core/success.response');
 const ProductService = require("../services/product.service");
 
 class ProductController {
-  getAllProducts = async (req, res, next) => {
-    // v2
-    new SuccessResponse({
-        message: 'Get all product success',
-        metadata: await ProductService.getAllProduct()
-    }).send(res)
+  getProducts = async (req, res, next) => {
+    new OKResponse({
+      message: 'Lấy tất cả dữ liệu sản phẩm thành công',
+      metadata: await ProductService.getAll()
+    }).send(res);
+  }
+
+  createProduct = async (req, res, next) => {
+    new CreatedResponse({
+      message: 'Tạo sản phẩm mới thành công',
+      metadata: await ProductService.createProduct(req.body)
+    }).send(res);
   }
 }
 
