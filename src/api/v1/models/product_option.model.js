@@ -16,6 +16,7 @@ const productOptionSchema = new Schema(
     option_values: [
       {
         value: { type: String, required: true },
+        image: { type: String, default: null },
         price_adjustment: { type: Number, default: 0 },
         quantity_available: { type: Number, required: true, default: 0 },
       },

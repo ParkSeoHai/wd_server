@@ -13,6 +13,11 @@ class ProductImageService {
 
     return newProductDetail;
   }
+
+  static findByProductId = async (productId) => {
+    const productDetail = await ProductDetailModel.find({product_id: productId}).lean();
+    return productDetail;
+  }
 }
 
 module.exports = ProductImageService;

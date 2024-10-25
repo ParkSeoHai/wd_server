@@ -17,6 +17,13 @@ class ProductController {
       metadata: await ProductService.createProduct(req.body)
     }).send(res);
   }
+
+  getProductById = async (req, res, next) => {
+    new OKResponse({
+      message: 'Lấy dữ liệu chi tiết sản phẩm thành công',
+      metadata: await ProductService.getById(req.params.id)
+    }).send(res);
+  }
 }
 
 module.exports = new ProductController()
