@@ -24,7 +24,7 @@ class CategoryService {
     const categoryMap = {};
     categories.forEach(category => {
       const data = getInfoData({fields: ["_id", "category_name", "icon", "category_description"], data: category});
-      categoryMap[category._id] = { data, subcategories: [] };
+      categoryMap[category._id] = { ...data, subcategories: [] };
     });
 
     const result = [];
@@ -38,7 +38,9 @@ class CategoryService {
       }
     });
 
-    return result;
+    return {
+      categories: result
+    };
   }
 }
 

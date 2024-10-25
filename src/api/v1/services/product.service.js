@@ -44,8 +44,6 @@ class ProductService {
   }
 
   static getById = async (id) => {
-    if (!isValidObjectId(id)) throw new BadRequestError("Id sản phẩm không hợp lệ");
-
     // Get product
     const foundProduct = await ProductModel.findById(id).lean();
     if (!foundProduct) throw new BadRequestError("Sản phẩm không tồn tại");

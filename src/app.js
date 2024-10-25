@@ -2,10 +2,14 @@ const express = require("express");
 const morgan = require("morgan");
 const { default: helmet } = require("helmet");
 const compression = require("compression");
+const cors = require("cors");
 
 require("dotenv").config();
 
 const app = express();
+
+// enabling CORS for any unknown origin(https://xyz.example.com)
+app.use(cors());
 
 // init middlewares
 app.use(express.json());
@@ -32,12 +36,11 @@ app.use((req, res, next) => {
 app.use((error, req, res, next) => {
     const statusCode = error.status || 500
 
-    console.log(error.stack)
-
     return res.status(statusCode).json({
         status: 'error',
         code: statusCode,
-        message: error.message || 'Internal Server Error'
+        message: error.message || 'Internal Server Error',
+        stack: error.stack
     })
 })
 
