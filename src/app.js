@@ -21,6 +21,7 @@ app.use(helmet());
 app.use(compression());
 
 // use router
+app.get("/", (req, res, next) => res.send(`Welcome to wd-shop api`))
 app.use(require("./api/routes"));
 
 // init db
