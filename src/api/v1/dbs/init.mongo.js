@@ -4,9 +4,9 @@
 
 const { default: mongoose } = require("mongoose");
 
-const { db: { host, port, name } } = require("../../../config/config.mongodb");
+const { db } = require("../../../config/config.mongodb");
 
-const connectString = `mongodb://${host}:${port}/${name}`;
+const connectString = `${db.connectString}`;
 
 class Database {
     constructor() {
@@ -14,6 +14,8 @@ class Database {
     }
 
     connect(type = 'mongodb') {
+        console.log(connectString)
+
         if (type == 'mongodb') {
             if (1 === 1) {
                 mongoose.set('debug', true);
@@ -24,7 +26,7 @@ class Database {
                 maxPoolSize: 50
             })
                 .then(_ => {
-                    console.log(`Connect Mongodb Success ${name}`);
+                    console.log(`Connect Mongodb Success`);
                 })
                 .catch(err => {
                     console.log(`Error connect ${err}`);
