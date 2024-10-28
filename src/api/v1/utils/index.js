@@ -1,28 +1,22 @@
 const _ = require("lodash")
 
-const getInfoData = ({ collection = null, fieldsOption = [], data }) => {
+const getInfoData = ({ collection = null, fieldsImportant = [], fieldsOption = [], data }) => {
     let fields = [];
     
-    if (collection === "products") {
+    if (fieldsImportant.length > 0) {
+        fields = fieldsImportant
+    } else if (collection === "products") {
         fields = [
-            "_id", "product_name", "product_description", "product_price", 
+            "_id", "product_name", "product_url", "product_description", "product_price",
             "product_quantity", "product_discount", "brand_name", "product_type", "imageThumbs"
         ];
-    }
-
-    if (collection === "categories") {
-        fields = ["_id", "category_name", "icon", "category_description"];
-    }
-
-    if (collection === "product_images") {
+    } else if (collection === "categories") {
+        fields = ["_id", "category_name", "category_url", "icon", "category_description"];
+    } else if (collection === "product_images") {
         fields = ["image_url", "type", "alt_text", "order"];
-    }
-
-    if (collection === "product_details") {
+    } else if (collection === "product_details") {
         fields = ["_id", "attributes"];
-    }
-
-    if (collection === "product_options") {
+    } else if (collection === "product_options") {
         fields = ["_id", "option_name", "option_values", "order"];
     }
 

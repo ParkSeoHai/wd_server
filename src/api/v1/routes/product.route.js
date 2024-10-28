@@ -6,8 +6,11 @@ const router = express.Router();
 const asyncHandler = require("../helpers//asyncHandler");
 const ProductController = require("../controllers/product.controller");
 
-// Get all products
+// Get products
 router.get("/", asyncHandler(ProductController.getProductsPagination));
+
+// Get products by category
+router.get("/category/:category_url", asyncHandler(ProductController.getProductsByCategory));
 
 // Get product detail
 router.get("/:id", asyncHandler(ProductController.getProductById));

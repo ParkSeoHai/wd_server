@@ -35,6 +35,15 @@ class ProductController {
       metadata: await ProductService.getById(productId)
     }).send(res);
   }
+
+  getProductsByCategory = async (req, res, next) => {
+    const category_url = req.params.category_url;
+
+    new OKResponse({
+      message: 'Lấy danh sách sản phẩm theo danh mục thành công',
+      metadata: await ProductService.getProductsByCategory(category_url.trim())
+    }).send(res);
+  }
 }
 
 module.exports = new ProductController();

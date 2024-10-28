@@ -7,6 +7,7 @@ const ProductImageService = require('./product_image.service');
 const ProductDetailService = require('./product_detail.service');
 const ProductOptionService = require('./product_option.service');
 const { getInfoData } = require('../utils');
+const CategoryService = require('./category.service');
 
 class ProductService {
   static getWithPagination = async ({ page = 1, limit = 10 }) => {
@@ -63,6 +64,25 @@ class ProductService {
       images: productImages,
       detail: productDetail,
       options: productOptions
+    };
+  }
+
+  static getProductsByCategory = async (category_url) => {
+    // Get category
+    const category = await CategoryService.getCategoryByUrl(category_url);
+
+    // Get all sub categories (if exist)
+    const subCategories = await CategoryService.getAllSubcategories(category._id);
+
+    // Create a new array id category (category parent and sub category)
+    let ids = [category._id];
+    subCategories.forEach(sub => ids.push(sub._id));
+
+    // Get all product from list ids category
+    const products = await ProductModel.find({ category_id: { $in: ids } }).lean();
+
+    return {
+      products, category
     };
   }
 }

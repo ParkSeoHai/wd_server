@@ -42,6 +42,26 @@ class CategoryService {
       categories: result
     };
   }
+
+  static getCategoryByUrl = async (category_url) => {
+    const category = await CategoryModel.findOne({category_url}).lean();
+    console.log(category)
+    if (!category) throw new BadRequestError("Get category by url not found");
+    return getInfoData({ collection: "categories", data: category });
+  }
+
+  // Hàm lấy danh sách tất cả danh mục con của một danh mục
+  static getAllSubcategories = async (categoryId) => {
+    const subcategories = await CategoryModel.find({ parent_category_id: categoryId }).lean();
+    const allSubcategories = [...subcategories];
+
+    for (const subcategory of subcategories) {
+      const childSubcategories = await this.getAllSubcategories(subcategory._id);
+      allSubcategories.push(...childSubcategories);
+    }
+
+    return getInfoData({ collection: "categories", data: allSubcategories });
+  };
 }
 
 module.exports = CategoryService;
