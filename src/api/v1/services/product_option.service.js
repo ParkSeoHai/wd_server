@@ -3,6 +3,7 @@
 const ProductOptionModel = require('../models/product_option.model');
 
 const { BadRequestError } = require("../core/error.response");
+const { getInfoData } = require('../utils');
 
 class ProductOptionService {
 
@@ -18,7 +19,7 @@ class ProductOptionService {
 
   static findByProductId = async (productId) => {
     const productOptions = await ProductOptionModel.find({product_id: productId}).lean();
-    return productOptions;
+    return getInfoData({ collection: "product_options", data: productOptions });
   }
 }
 

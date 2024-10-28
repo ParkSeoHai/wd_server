@@ -23,7 +23,7 @@ class CategoryService {
     // Phân loại danh mục cha và con
     const categoryMap = {};
     categories.forEach(category => {
-      const data = getInfoData({fields: ["_id", "category_name", "icon", "category_description"], data: category});
+      const data = getInfoData({collection: "categories", data: category});
       categoryMap[category._id] = { ...data, subcategories: [] };
     });
 

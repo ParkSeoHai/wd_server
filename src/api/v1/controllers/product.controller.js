@@ -5,10 +5,17 @@ const ProductService = require("../services/product.service");
 const { validObjectId } = require("../validations");
 
 class ProductController {
-  getProducts = async (req, res, next) => {
+  getProductsPagination = async (req, res, next) => {
+    const page = req.query.p || 1;
+    const limit = req.query.limit || 10;
+
     new OKResponse({
       message: 'Lấy tất cả dữ liệu sản phẩm thành công',
-      metadata: await ProductService.getAll()
+      metadata: await ProductService.getWithPagination({ page, limit }),
+      options: {
+        page, limit,
+        totalSize: await ProductService.getCountDocument({ query: { publish: true } })
+      }
     }).send(res);
   }
 
@@ -30,4 +37,4 @@ class ProductController {
   }
 }
 
-module.exports = new ProductController()
+module.exports = new ProductController();

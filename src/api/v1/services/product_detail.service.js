@@ -3,6 +3,7 @@
 const ProductDetailModel = require('../models/product_detail.model');
 
 const { BadRequestError } = require("../core/error.response");
+const { getInfoData } = require('../utils');
 
 class ProductImageService {
 
@@ -16,7 +17,7 @@ class ProductImageService {
 
   static findByProductId = async (productId) => {
     const productDetail = await ProductDetailModel.find({product_id: productId}).lean();
-    return productDetail;
+    return getInfoData({ collection: "product_details", data: productDetail });
   }
 }
 

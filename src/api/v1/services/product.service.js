@@ -3,28 +3,29 @@
 const ProductModel = require('../models/product.model');
 
 const { BadRequestError } = require("../core/error.response");
-const { isValidObjectId } = require('mongoose');
 const ProductImageService = require('./product_image.service');
 const ProductDetailService = require('./product_detail.service');
 const ProductOptionService = require('./product_option.service');
 const { getInfoData } = require('../utils');
 
 class ProductService {
-  static getAll = async () => {
-    const products = await ProductModel.find({
-      publish: true
-    }).lean();
+  static getWithPagination = async ({ page = 1, limit = 10 }) => {
+    const skipDoc = limit * (page - 1);
+
+    const products = await ProductModel.find({ publish: true }).skip(skipDoc).limit(limit).lean();
     // Get image thumbnail
     await Promise.all(products.map(async (product) => {
       const imageThumbs = await ProductImageService.findByProductId({ productId: product._id, type: "thumbnail" });
       product.imageThumbs = imageThumbs;
     }));
 
-    return getInfoData({ 
-      fields: ["_id", "product_name", "product_description", "product_price", 
-        "product_quantity", "product_discount", "brand_name", "product_type", "imageThumbs"
-      ], data: products
-    });
+    return {
+      products: getInfoData({collection: "products", data: products })
+    };
+  }
+
+  static getCountDocument = async ({ query = {} }) => {
+    return await ProductModel.countDocuments(query);
   }
 
   static createProduct = async ({
@@ -58,7 +59,7 @@ class ProductService {
     const productOptions = await ProductOptionService.findByProductId(foundProduct._id);
 
     return {
-      product: foundProduct,
+      product: getInfoData({ collection: "products", data: foundProduct }),
       images: productImages,
       detail: productDetail,
       options: productOptions

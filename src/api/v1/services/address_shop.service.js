@@ -18,12 +18,14 @@ class AddressShopService {
 
   static getAll = async () => {
     const addressShops = await AddressShopModel.find().lean();
-    return getInfoData({ 
-        fields: [
-            "_id", "name_shop", "country", "city", "quan_huyen", 
-            "xa_phuong", "detail", "phone_number", "uptime", "url_map"
-        ], data: addressShops
-    });
+    return {
+      addressShops: getInfoData({ 
+          fields: [
+              "_id", "name_shop", "country", "city", "quan_huyen", 
+              "xa_phuong", "detail", "phone_number", "uptime", "url_map"
+          ], data: addressShops
+      })
+    };
   }
 
   static getAllByCity = async (city) => {
@@ -31,12 +33,14 @@ class AddressShopService {
     const addressShops = await AddressShopModel.find({
         city: { $regex: city, $options: 'i' }
     }).lean();
-    return getInfoData({ 
-        fields: [
-            "_id", "name_shop", "country", "city", "quan_huyen", 
-            "xa_phuong", "detail", "phone_number", "uptime", "url_map"
-        ], data: addressShops
-    });
+    return {
+      addressShops: getInfoData({ 
+          fields: [
+              "_id", "name_shop", "country", "city", "quan_huyen", 
+              "xa_phuong", "detail", "phone_number", "uptime", "url_map"
+          ], data: addressShops
+      })
+    };
   }
 
   static getAllByCityAndQuanHuyen = async (city, quan_huyen) => {
@@ -45,12 +49,14 @@ class AddressShopService {
         city: { $regex: city, $options: 'i' },
         quan_huyen: { $regex: quan_huyen, $options: 'i' }
     }).lean();
-    return getInfoData({ 
-        fields: [
-            "_id", "name_shop", "country", "city", "quan_huyen", 
-            "xa_phuong", "detail", "phone_number", "uptime", "url_map"
-        ], data: addressShops
-    });
+    return {
+      addressShops: getInfoData({ 
+          fields: [
+              "_id", "name_shop", "country", "city", "quan_huyen", 
+              "xa_phuong", "detail", "phone_number", "uptime", "url_map"
+          ], data: addressShops
+      })
+    };
   }
 }
 

@@ -7,7 +7,7 @@ const asyncHandler = require("../helpers//asyncHandler");
 const ProductController = require("../controllers/product.controller");
 
 // Get all products
-router.get("/", asyncHandler(ProductController.getProducts));
+router.get("/", asyncHandler(ProductController.getProductsPagination));
 
 // Get product detail
 router.get("/:id", asyncHandler(ProductController.getProductById));

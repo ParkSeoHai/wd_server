@@ -29,4 +29,4 @@ const productOptionSchema = new Schema(
   }
 );
 
-module.exports = model(DOCUMENT_NAME, productOptionSchema)
+module.exports = model(DOCUMENT_NAME, productOptionSchema);
