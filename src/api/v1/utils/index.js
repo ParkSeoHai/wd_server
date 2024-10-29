@@ -18,6 +18,11 @@ const getInfoData = ({ collection = null, fieldsImportant = [], fieldsOption = [
         fields = ["_id", "attributes"];
     } else if (collection === "product_options") {
         fields = ["_id", "option_name", "option_values", "order"];
+    } else if (collection === "address_shop") {
+        fields = [
+            "_id", "name_shop", "country", "city", "quan_huyen", 
+            "xa_phuong", "detail", "phone_number", "uptime", "url_map"
+        ];
     }
 
     const newFields = fields.concat(fieldsOption);
