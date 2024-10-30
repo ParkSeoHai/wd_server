@@ -11,7 +11,7 @@ const getInfoData = ({ collection = null, fieldsImportant = [], fieldsOption = [
             "product_quantity", "product_discount", "brand_name", "product_type", "imageThumbs"
         ];
     } else if (collection === "categories") {
-        fields = ["_id", "category_name", "category_url", "icon", "category_description"];
+        fields = ["_id", "category_name", "category_url", "icon", "category_description", "parent_category_id"];
     } else if (collection === "product_images") {
         fields = ["image_url", "type", "alt_text", "order"];
     } else if (collection === "product_details") {

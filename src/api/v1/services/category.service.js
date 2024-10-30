@@ -44,9 +44,15 @@ class CategoryService {
   }
 
   static getCategoryByUrl = async (category_url) => {
-    const category = await CategoryModel.findOne({category_url}).lean();
+    const category = await CategoryModel.findOne({category_url: { $regex: category_url, $options: 'i' }}).lean();
     console.log(category)
     if (!category) throw new BadRequestError("Get category by url not found");
+    return getInfoData({ collection: "categories", data: category });
+  }
+
+  static getCategoryById = async (category_id) => {
+    const category = await CategoryModel.findOne({ _id: category_id }).lean();
+    if (!category) throw new BadRequestError("Get category by id not found");
     return getInfoData({ collection: "categories", data: category });
   }
 

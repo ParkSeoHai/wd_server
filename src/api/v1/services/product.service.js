@@ -8,6 +8,7 @@ const ProductDetailService = require('./product_detail.service');
 const ProductOptionService = require('./product_option.service');
 const { getInfoData } = require('../utils');
 const CategoryService = require('./category.service');
+const { isNull } = require('lodash');
 
 class ProductService {
   static getWithPagination = async ({ page = 1, limit = 10 }) => {
@@ -81,9 +82,18 @@ class ProductService {
     // Get all product from list ids category
     const products = await ProductModel.find({ category_id: { $in: ids } }).lean();
 
-    return {
-      products, category
-    };
+    // Get bread crumb
+    let breadCrumb = [category];
+    let parent_id = category.parent_category_id;
+
+    while (parent_id !== null) {
+      // get parent category
+      const parent_category = await CategoryService.getCategoryById(parent_id);
+      breadCrumb.unshift(parent_category);
+      parent_id = parent_category.parent_category_id;
+    }
+
+    return { products, breadCrumb };
   }
 }
 
