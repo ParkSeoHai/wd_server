@@ -8,21 +8,29 @@ const ProductDetailService = require('./product_detail.service');
 const ProductOptionService = require('./product_option.service');
 const { getInfoData } = require('../utils');
 const CategoryService = require('./category.service');
-const { isNull } = require('lodash');
 
 class ProductService {
-  static getWithPagination = async ({ page = 1, limit = 10 }) => {
+  static getAll = async ({ page, limit }) => {
+    const query = {
+      publish: true
+    };
+    const { products, options } = await this.getWithPagination({ page, limit, query });
+    return { products, options };
+  }
+
+  static getWithPagination = async ({ page = 1, limit = 10, query, sort = {} }) => {
     const skipDoc = limit * (page - 1);
 
-    const products = await ProductModel.find({ publish: true }).skip(skipDoc).limit(limit).lean();
-    // Get image thumbnail
-    await Promise.all(products.map(async (product) => {
-      const imageThumbs = await ProductImageService.findByProductId({ productId: product._id, type: "thumbnail" });
-      product.imageThumbs = imageThumbs;
+    const products = await ProductModel.find(query).sort(sort).skip(skipDoc).limit(limit).lean();
+    // Get info product
+    await Promise.all(products.map(async (product, index) => {
+      // get info data product
+      products[index] = await this.getById(product._id);
     }));
 
     return {
-      products: getInfoData({collection: "products", data: products })
+      products,
+      options: { page, limit, totalSize: await this.getCountDocument({ query: { publish: true } }) }
     };
   }
 
@@ -46,29 +54,50 @@ class ProductService {
     return newProduct;
   }
 
-  static getById = async (id) => {
+  // Get product detail by url
+  static getDetail = async (productUrl) => {
     // Get product
-    const foundProduct = await ProductModel.findById(id).lean();
+    const foundProduct = await ProductModel
+      .findOne({ product_url: productUrl, publish: true }).lean();
     if (!foundProduct) throw new BadRequestError("Sản phẩm không tồn tại");
 
     // Get product images
-    const productImages = await ProductImageService.findByProductId({ productId: foundProduct._id });
+    const images = await ProductImageService.findByProductId({ productId: foundProduct._id });
 
     // Get product detail
-    const productDetail = await ProductDetailService.findByProductId(foundProduct._id);
+    const { attributes } = await ProductDetailService.findByProductId(foundProduct._id);
 
     // Get product options
-    const productOptions = await ProductOptionService.findByProductId(foundProduct._id);
+    const options = await ProductOptionService.findByProductId(foundProduct._id);
 
+    // Get bread crumb
+    let breadCrumbs = await CategoryService.getBreadcrumbs(foundProduct.category_id);
+    
     return {
-      product: getInfoData({ collection: "products", data: foundProduct }),
-      images: productImages,
-      detail: productDetail,
-      options: productOptions
+      product: {
+        ...getInfoData({ collection: "products", fieldsOption: ["brand_name", "product_description"], data: foundProduct }),
+        images, attributes, options
+      },
+      breadCrumbs
     };
   }
 
-  static getProductsByCategory = async (category_url) => {
+  static getById = async (id) => {
+    let product = await ProductModel.findById(id).lean();
+    if (!product) throw new BadRequestError("Sản phẩm không được tìm thấy");
+
+    // get info data
+    product = getInfoData({collection: "products", data: product });
+    // image thumbs
+    const imageThumbs = await ProductImageService.findByProductId({ productId: product._id, type: "thumbnail" });
+    product.imageThumbs = imageThumbs;
+    // Price sale
+    product.product_price_sale = this.calcProductPriceSale({ price: product.product_price, discount: product.product_discount });
+
+    return product;
+  }
+
+  static getProductsByCategory = async ({ page, limit, category_url }) => {
     // Get category
     const category = await CategoryService.getCategoryByUrl(category_url);
 
@@ -76,24 +105,29 @@ class ProductService {
     const subCategories = await CategoryService.getAllSubcategories(category._id);
 
     // Create a new array id category (category parent and sub category)
-    let ids = [category._id];
-    subCategories.forEach(sub => ids.push(sub._id));
+    // let ids = [category._id];
+    // subCategories.forEach(sub => ids.push(sub._id));
+    const ids = [category._id, ...subCategories.map(sub => sub._id)];
 
     // Get all product from list ids category
-    const products = await ProductModel.find({ category_id: { $in: ids } }).lean();
+    const { products, options } = await this.getWithPagination({ page, limit, query: { category_id: { $in: ids } } });
 
     // Get bread crumb
-    let breadCrumb = [category];
-    let parent_id = category.parent_category_id;
+    let breadCrumbs = await CategoryService.getBreadcrumbs(category._id);
 
-    while (parent_id !== null) {
-      // get parent category
-      const parent_category = await CategoryService.getCategoryById(parent_id);
-      breadCrumb.unshift(parent_category);
-      parent_id = parent_category.parent_category_id;
-    }
+    return { products, options, breadCrumbs };
+  }
 
-    return { products, breadCrumb };
+  static calcProductPriceSale = ({ price, discount }) => {
+    const priceSale = (price * discount) / 100;
+    return price - priceSale;
+  }
+
+  static getProductsNew = async ({ page, limit }) => {
+    const query = { publish: true };
+    const sort = { createdAt: -1 };
+    const { products, options } = await this.getWithPagination({ page, limit, query, sort });
+    return { products, options };
   }
 }
 

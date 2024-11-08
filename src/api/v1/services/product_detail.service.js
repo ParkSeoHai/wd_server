@@ -16,7 +16,7 @@ class ProductImageService {
   }
 
   static findByProductId = async (productId) => {
-    const productDetail = await ProductDetailModel.find({product_id: productId}).lean();
+    const productDetail = await ProductDetailModel.findOne({product_id: productId}).lean();
     return getInfoData({ collection: "product_details", data: productDetail });
   }
 }

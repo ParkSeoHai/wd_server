@@ -19,5 +19,7 @@ routes.use("/customer", require("./customer.route"));
 routes.use("/category", require("./category.route"));
 // route address_shop
 routes.use("/address_shop", require("./address_shop.route"));
+// route flash sale
+routes.use("/flash_sale", require("./flash_sale.route"));
 
 module.exports = routes;

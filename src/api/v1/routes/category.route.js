@@ -7,6 +7,9 @@ const asyncHandler = require('../helpers/asyncHandler');
 const router = express.Router();
 
 router.get("/", asyncHandler(CategoryrController.getCategories));
+
+router.get("/sub/:category_url", asyncHandler(CategoryrController.getSubCategories));
+
 router.post("/", asyncHandler(CategoryrController.create));
 
 module.exports = router

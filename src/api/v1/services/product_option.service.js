@@ -7,9 +7,9 @@ const { getInfoData } = require('../utils');
 
 class ProductOptionService {
 
-  static addProductOption = async ({ product_id, option_name, option_values, order }) => {
+  static addProductOption = async ({ product_id, option_name, option_values }) => {
     const newProductOption = await ProductOptionModel.create({
-      product_id, option_name, option_values, order
+      product_id, option_name, option_values
     });
 
     if (!newProductOption) throw new BadRequestError("Thêm tùy chọn sản phẩm thất bại");
@@ -18,7 +18,7 @@ class ProductOptionService {
   }
 
   static findByProductId = async (productId) => {
-    const productOptions = await ProductOptionModel.find({product_id: productId}).lean();
+    const productOptions = await ProductOptionModel.findOne({product_id: productId}).lean();
     return getInfoData({ collection: "product_options", data: productOptions });
   }
 }

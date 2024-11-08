@@ -1,21 +1,21 @@
 "use strict"
 
+const { toInteger } = require('lodash');
 const { OKResponse, CreatedResponse } = require('../core/success.response');
 const ProductService = require("../services/product.service");
 const { validObjectId } = require("../validations");
 
 class ProductController {
-  getProductsPagination = async (req, res, next) => {
-    const page = req.query.p || 1;
-    const limit = req.query.limit || 10;
+  getAllProducts = async (req, res, next) => {
+    const page = toInteger(req.query.p) || 1;
+    const limit = toInteger(req.query.limit) || 10;
+
+    const { products, options } = await ProductService.getAll({ page, limit });
 
     new OKResponse({
       message: 'Lấy tất cả dữ liệu sản phẩm thành công',
-      metadata: await ProductService.getWithPagination({ page, limit }),
-      options: {
-        page, limit,
-        totalSize: await ProductService.getCountDocument({ query: { publish: true } })
-      }
+      metadata: products,
+      options
     }).send(res);
   }
 
@@ -26,22 +26,39 @@ class ProductController {
     }).send(res);
   }
 
-  getProductById = async (req, res, next) => {
-    const productId = req.params.id;
-    validObjectId(productId);
+  getDetail = async (req, res, next) => {
+    const productUrl = req.params.product_url;
 
     new OKResponse({
       message: 'Lấy dữ liệu chi tiết sản phẩm thành công',
-      metadata: await ProductService.getById(productId)
+      metadata: await ProductService.getDetail(productUrl.trim().toLowerCase())
     }).send(res);
   }
 
   getProductsByCategory = async (req, res, next) => {
     const category_url = req.params.category_url;
+    const page = toInteger(req.query.p) || 1;
+    const limit = toInteger(req.query.limit) || 20;
+
+    const { products, options, breadCrumbs } = await ProductService.getProductsByCategory({ page, limit, category_url: category_url.trim() });
 
     new OKResponse({
       message: 'Lấy danh sách sản phẩm theo danh mục thành công',
-      metadata: await ProductService.getProductsByCategory(category_url.trim())
+      metadata: { products, breadCrumbs },
+      options
+    }).send(res);
+  }
+
+  getProductsNew = async (req, res, next) => {
+    const page = toInteger(req.query.p) || 1;
+    const limit = toInteger(req.query.limit) || 5;
+
+    const { products, options } = await ProductService.getProductsNew({ page, limit });
+
+    new OKResponse({
+      message: 'Lấy danh sách sản phẩm mới thành công',
+      metadata: { products },
+      options
     }).send(res);
   }
 }
