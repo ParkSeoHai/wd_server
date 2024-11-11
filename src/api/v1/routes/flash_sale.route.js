@@ -7,7 +7,7 @@ const FlashSaleController = require('../controllers/flash_sale.controller');
 const router = express.Router();
 
 // Get flash sale
-router.get("/", asyncHandler(FlashSaleController.getFlashSale));
+router.get("/", asyncHandler(FlashSaleController.getFlashSaleDetail));
 
 router.post("/", asyncHandler(FlashSaleController.createFlashSale));
 

@@ -5,7 +5,7 @@ const ProductDetailModel = require('../models/product_detail.model');
 const { BadRequestError } = require("../core/error.response");
 const { getInfoData } = require('../utils');
 
-class ProductImageService {
+class ProductDetailService {
 
   static createProductDetail = async ({ product_id, attributes }) => {
     const newProductDetail = await ProductDetailModel.create({ product_id, attributes });
@@ -21,4 +21,4 @@ class ProductImageService {
   }
 }
 
-module.exports = ProductImageService;
+module.exports = ProductDetailService;

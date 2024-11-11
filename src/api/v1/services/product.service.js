@@ -3,11 +3,12 @@
 const ProductModel = require('../models/product.model');
 
 const { BadRequestError } = require("../core/error.response");
-const ProductImageService = require('./product_image.service');
-const ProductDetailService = require('./product_detail.service');
-const ProductOptionService = require('./product_option.service');
-const { getInfoData } = require('../utils');
-const CategoryService = require('./category.service');
+const { getInfoData, calcProductPriceSale } = require('../utils');
+
+const {
+  ProductImageService, ProductDetailService,
+  ProductOptionService, CategoryService
+} = require("./");
 
 class ProductService {
   static getAll = async ({ page, limit }) => {
@@ -26,6 +27,15 @@ class ProductService {
     await Promise.all(products.map(async (product, index) => {
       // get info data product
       products[index] = await this.getById(product._id);
+      // Get info flashsale if exist
+      products[index].flash_sale = await this.getInfoFlashSale(product._id);
+      // Get discount
+      if (products[index].flash_sale) {
+        products[index].product_discount = products[index].flash_sale.discount;
+      }
+      // Price sale
+      products[index].product_price_sale = calcProductPriceSale({ 
+        price: product.product_price, discount: products[index].product_discount });
     }));
 
     return {
@@ -71,12 +81,20 @@ class ProductService {
     const options = await ProductOptionService.findByProductId(foundProduct._id);
 
     // Get bread crumb
-    let breadCrumbs = await CategoryService.getBreadcrumbs(foundProduct.category_id);
+    const breadCrumbs = await CategoryService.getBreadcrumbs(foundProduct.category_id);
     
+    // Get info flashsale if exist
+    const flash_sale = await this.getInfoFlashSale(foundProduct._id);
+
+    // Get discount
+    if (flash_sale.discount >= 0) {
+      foundProduct.product_discount = flash_sale.discount;
+    }
+
     return {
       product: {
         ...getInfoData({ collection: "products", fieldsOption: ["brand_name", "product_description"], data: foundProduct }),
-        images, attributes, options
+        images, attributes, options, flash_sale
       },
       breadCrumbs
     };
@@ -87,18 +105,18 @@ class ProductService {
     if (!product) throw new BadRequestError("Sản phẩm không được tìm thấy");
 
     // get info data
-    product = getInfoData({collection: "products", data: product });
+    product = getInfoData({ collection: "products", data: product });
     // image thumbs
     const imageThumbs = await ProductImageService.findByProductId({ productId: product._id, type: "thumbnail" });
     product.imageThumbs = imageThumbs;
-    // Price sale
-    product.product_price_sale = this.calcProductPriceSale({ price: product.product_price, discount: product.product_discount });
 
     return product;
   }
 
   static getProductsByCategory = async ({ page, limit, category_url }) => {
     // Get category
+    console.log(new CategoryService);
+    
     const category = await CategoryService.getCategoryByUrl(category_url);
 
     // Get all sub categories (if exist)
@@ -118,16 +136,25 @@ class ProductService {
     return { products, options, breadCrumbs };
   }
 
-  static calcProductPriceSale = ({ price, discount }) => {
-    const priceSale = (price * discount) / 100;
-    return price - priceSale;
-  }
-
   static getProductsNew = async ({ page, limit }) => {
     const query = { publish: true };
     const sort = { createdAt: -1 };
     const { products, options } = await this.getWithPagination({ page, limit, query, sort });
     return { products, options };
+  }
+
+  static getInfoFlashSale = async (productId) => {
+    let info = null;
+    // get flash sale info product
+    const FlashSaleService = require("./flash_sale.service");
+    const flashSale = await FlashSaleService.getFlashSaleItem(productId);
+    if (flashSale) {
+      if (flashSale.flash_sale_items && flashSale.flash_sale_items.length > 0) {
+        const { discount, quantity_sale, quantity_sold } = flashSale.flash_sale_items[0];
+        info = { discount, quantity_sale, quantity_sold };
+      }
+    }
+    return info;
   }
 }
 

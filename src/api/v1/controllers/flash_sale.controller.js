@@ -14,11 +14,11 @@ class FlashSaleController {
     }).send(res);
   }
 
-  getFlashSale = async (req, res, next) => {
+  getFlashSaleDetail = async (req, res, next) => {
     const page = toInteger(req.query.p) || 1;
     const limit = toInteger(req.query.limit) || 15;
 
-    const { flashSale, message, options } = await FlashSaleService.getFlashSale({ page, limit });
+    const { flashSale, message, options } = await FlashSaleService.getFlashSaleDetail({ page, limit });
     
     new OKResponse({
         message: message,

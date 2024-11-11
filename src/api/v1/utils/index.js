@@ -24,8 +24,12 @@ const getInfoData = ({ collection = null, fieldsImportant = [], fieldsOption = [
             "_id", "name_shop", "country", "city", "quan_huyen", 
             "xa_phuong", "detail", "phone_number", "uptime", "url_map"
         ];
-    } else if (collection === "flash_sale") {
+    } else if (collection === "flash_sales") {
         fields = ["_id", "start_time", "end_time", "flash_sale_items", "publish"];
+    } else if (collection === "users") {
+        fields = ["_id", "email", "name"];
+    } else if (collection === "carts") {
+        fields = ["_id", "cart_items", "total_price"];
     }
 
     const newFields = fields.concat(fieldsOption);
@@ -41,7 +45,13 @@ const getInfoData = ({ collection = null, fieldsImportant = [], fieldsOption = [
     return _.pick(data, newFields)
 }
 
+const calcProductPriceSale = ({ price, discount }) => {
+    const priceSale = (price * discount) / 100;
+    return price - priceSale;
+}
+
 module.exports = {
     getInfoData,
-    convertStringToTimestamp
+    convertStringToTimestamp,
+    calcProductPriceSale
 }

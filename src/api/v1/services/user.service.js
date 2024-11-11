@@ -22,7 +22,7 @@ class UserService {
     }
 
     return {
-      user: getInfoData({fields: ["_id", "email", "name", "role"], object: foundUser})
+      user: getInfoData({collection: "users", data: foundUser})
     }
   }
 
@@ -40,13 +40,19 @@ class UserService {
     if (!newUser) throw new BadRequestError("Đăng ký tài khoản thất bại");
 
     return {
-      user: getInfoData({fields: ["_id", "email", "name", "role"], object: newUser})
+      user: getInfoData({collection: "users", fieldsOption: ["role"], data: newUser})
     }
   }
 
   static findByEmail = async (email) => {
     // check user registed
     const foundUser = await userModel.findOne({email}).lean();
+    return foundUser;
+  }
+
+  static findById = async (userId) => {
+    const foundUser = await userModel.findById(userId).lean();
+    if (!foundUser) throw new AuthFailureError("Không tìm thấy người dùng");
     return foundUser;
   }
 }

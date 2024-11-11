@@ -1,5 +1,4 @@
 "use strict"
-
 const { Schema, model } = require("mongoose");
 
 const DOCUMENT_NAME = "flash_sale";
@@ -21,7 +20,10 @@ const flashSaleSchema = new Schema(
         quantity_sold: { type: Number, default: 0, min: 0 },
       }
     ],
-    publish: { type: Boolean, default: true }
+    status: {
+      status_code: { type: String, require: true, enum: ["01", "02", "03"], default: "01" },
+      status_name: { type: String, require: true, default: "Sắp diễn ra" }
+    }
   },
   {
     collection: COLLECTION_NAME,
