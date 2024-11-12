@@ -8,5 +8,10 @@ const router = express.Router();
 
 router.post("/login", asyncHandler(userController.login));
 router.post("/register", asyncHandler(userController.register));
+router.get("/account/:userId", asyncHandler(userController.getAccount));
+router.post("/account/update", asyncHandler(userController.updateInfoAccount));
+router.post("/customerAddress", asyncHandler(userController.addCustomerAddress));
+router.post("/customerAddress/update", asyncHandler(userController.updateCustomerAddress));
+router.post("/customerAddress/remove", asyncHandler(userController.removeCustomerAddress));
 
 module.exports = router

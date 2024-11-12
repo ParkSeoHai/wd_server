@@ -27,7 +27,7 @@ const getInfoData = ({ collection = null, fieldsImportant = [], fieldsOption = [
     } else if (collection === "flash_sales") {
         fields = ["_id", "start_time", "end_time", "flash_sale_items", "publish"];
     } else if (collection === "users") {
-        fields = ["_id", "email", "name"];
+        fields = ["_id", "email", "name", "phone_number", "gender", "birthday", "avatar"];
     } else if (collection === "carts") {
         fields = ["_id", "cart_items", "total_price"];
     }
