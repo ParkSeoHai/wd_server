@@ -30,6 +30,8 @@ const getInfoData = ({ collection = null, fieldsImportant = [], fieldsOption = [
         fields = ["_id", "email", "name", "phone_number", "gender", "birthday", "avatar"];
     } else if (collection === "carts") {
         fields = ["_id", "cart_items", "total_price"];
+    } else if (collection === "product_favorites") {
+        fields = ["_id", "favorite_items"];
     }
 
     const newFields = fields.concat(fieldsOption);

@@ -11,6 +11,12 @@ const {
 } = require("./");
 
 class ProductService {
+  static checkProduct = async (id) => {
+    let product = await ProductModel.findById(id).lean();
+    if (!product) throw new BadRequestError("Sản phẩm không được tìm thấy");
+    return product;
+  }
+
   static getAll = async ({ page, limit }) => {
     const query = {
       publish: true
@@ -25,19 +31,8 @@ class ProductService {
     const products = await ProductModel.find(query).sort(sort).skip(skipDoc).limit(limit).lean();
     // Get info product
     await Promise.all(products.map(async (product, index) => {
-      // get info data product
-      products[index] = await this.getById(product._id);
-      // Get info flashsale if exist
-      products[index].flash_sale = await this.getInfoFlashSale(product._id);
-      // Get discount
-      if (products[index].flash_sale) {
-        products[index].product_discount = products[index].flash_sale.discount;
-      }
-      // Price sale
-      products[index].product_price_sale = calcProductPriceSale({ 
-        price: product.product_price, discount: products[index].product_discount });
+      products[index] = await this.getInfoProduct(product._id);
     }));
-
     return {
       products,
       options: { page, limit, totalSize: await this.getCountDocument({ query: { publish: true } }) }
@@ -113,10 +108,23 @@ class ProductService {
     return product;
   }
 
+  static getInfoProduct = async (productId) => {
+    // get info data product
+    const product = await this.getById(productId);
+    // Get info flashsale if exist
+    product.flash_sale = await this.getInfoFlashSale(product._id);
+    // Get discount
+    if (product.flash_sale) {
+      product.product_discount = product.flash_sale.discount;
+    }
+    // Price sale
+    product.product_price_sale = calcProductPriceSale({ 
+      price: product.product_price, discount: product.product_discount });
+    return product;
+  }
+
   static getProductsByCategory = async ({ page, limit, category_url }) => {
     // Get category
-    console.log(new CategoryService);
-    
     const category = await CategoryService.getCategoryByUrl(category_url);
 
     // Get all sub categories (if exist)
@@ -128,7 +136,11 @@ class ProductService {
     const ids = [category._id, ...subCategories.map(sub => sub._id)];
 
     // Get all product from list ids category
-    const { products, options } = await this.getWithPagination({ page, limit, query: { category_id: { $in: ids } } });
+    const query = {
+      category_id: { $in: ids },
+      publish: true
+    }
+    const { products, options } = await this.getWithPagination({ page, limit, query });
 
     // Get bread crumb
     let breadCrumbs = await CategoryService.getBreadcrumbs(category._id);

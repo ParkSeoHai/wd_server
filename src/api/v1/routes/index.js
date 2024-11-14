@@ -3,6 +3,8 @@
 const express = require("express");
 const routes = express.Router();
 
+// route auth
+routes.use("/auth", require("./auth.route"));
 // route product
 routes.use("/product", require("./product.route"));
 // route product_image
