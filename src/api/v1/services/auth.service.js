@@ -61,6 +61,14 @@ class AuthService {
         pass: process.env.AUTH_MAIL_PASS
       }
     });
+
+    transport.verify((error, success) => {
+      if (error) {
+        console.error("Mail server connection failed:", error);
+      } else {
+        console.log("Mail server is ready to send messages");
+      }
+    });
     
     var mailOptions = {
       from: process.env.AUTH_MAIL_USER,
