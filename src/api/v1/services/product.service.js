@@ -17,11 +17,22 @@ class ProductService {
     return product;
   }
 
-  static getAll = async ({ page, limit }) => {
-    const query = {
+  static getAll = async ({ searchStr, page, limit, sort }) => {
+    let query = {
       publish: true
     };
+    // search product
+    if (searchStr) {
+      query = {
+        ...query,
+        product_name: { $regex: searchStr, $options: 'i' }
+      };
+    }
+    // get product
     const { products, options } = await this.getWithPagination({ page, limit, query });
+    // if option sort
+    if (sort === "desc") products.sort((productA, productB) => productB.product_price_sale - productA.product_price_sale);
+    else if (sort ==="asc") products.sort((productA, productB) => productA.product_price_sale - productB.product_price_sale);
     return { products, options };
   }
 
@@ -35,7 +46,7 @@ class ProductService {
     }));
     return {
       products,
-      options: { page, limit, totalSize: await this.getCountDocument({ query: { publish: true } }) }
+      options: { page, limit, totalSize: await this.getCountDocument({ query }) }
     };
   }
 
@@ -123,7 +134,7 @@ class ProductService {
     return product;
   }
 
-  static getProductsByCategory = async ({ page, limit, category_url }) => {
+  static getProductsByCategory = async ({ page, limit, sort, category_url }) => {
     // Get category
     const category = await CategoryService.getCategoryByUrl(category_url);
 
@@ -141,7 +152,9 @@ class ProductService {
       publish: true
     }
     const { products, options } = await this.getWithPagination({ page, limit, query });
-
+    // if option sort
+    if (sort === "desc") products.sort((productA, productB) => productB.product_price_sale - productA.product_price_sale);
+    if (sort ==="asc") products.sort((productA, productB) => productA.product_price_sale - productB.product_price_sale);
     // Get bread crumb
     let breadCrumbs = await CategoryService.getBreadcrumbs(category._id);
 

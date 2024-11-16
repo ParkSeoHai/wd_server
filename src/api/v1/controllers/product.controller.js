@@ -9,11 +9,13 @@ class ProductController {
   getAllProducts = async (req, res, next) => {
     const page = toInteger(req.query.p) || 1;
     const limit = toInteger(req.query.limit) || 10;
+    const sort = req.query.sort;
+    const searchStr = req.query.s || null;
 
-    const { products, options } = await ProductService.getAll({ page, limit });
+    const { products, options } = await ProductService.getAll({ searchStr, page, limit, sort });
 
     new OKResponse({
-      message: 'Lấy tất cả dữ liệu sản phẩm thành công',
+      message: 'Lấy dữ liệu sản phẩm thành công',
       metadata: products,
       options
     }).send(res);
@@ -39,8 +41,9 @@ class ProductController {
     const category_url = req.params.category_url;
     const page = toInteger(req.query.p) || 1;
     const limit = toInteger(req.query.limit) || 20;
+    const sort = req.query.sort;
 
-    const { products, options, breadCrumbs } = await ProductService.getProductsByCategory({ page, limit, category_url: category_url.trim() });
+    const { products, options, breadCrumbs } = await ProductService.getProductsByCategory({ page, limit, sort, category_url: category_url.trim() });
 
     new OKResponse({
       message: 'Lấy danh sách sản phẩm theo danh mục thành công',

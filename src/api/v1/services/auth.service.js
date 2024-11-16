@@ -45,13 +45,13 @@ class AuthService {
     }
   }
 
-  static getOTP = async ({emailTo}) => {
+  static getOTP = async ({emailTo, name}) => {
     const randomOtp = Math.floor(100000 + Math.random() * 900000);
-    await this.sendMail({ emailTo, text: `CODE: ${randomOtp}` });
+    await this.sendOTPMail({ emailTo, name, otpCode: randomOtp });
     return randomOtp;
   }
 
-  static sendMail = async ({ subject = 'WD Smart', emailTo, text }) => {
+  static sendOTPMail = async ({ subject = 'WD Smart', emailTo, name, otpCode }) => {
     var transport = nodemailer.createTransport({
       host: process.env.MAIL_HOST,
       port: process.env.MAIL_PORT,
@@ -65,7 +65,74 @@ class AuthService {
     var mailOptions = {
       from: process.env.AUTH_MAIL_USER,
       to: emailTo,
-      subject, text
+      subject,
+      html: `<!DOCTYPE html>
+        <html lang="vi">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Mã OTP của bạn</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f4f4f4;
+                    margin: 0;
+                    padding: 0;
+                }
+                .email-container {
+                    max-width: 600px;
+                    margin: auto;
+                    background-color: #ffffff;
+                    padding: 20px;
+                    border-radius: 5px;
+                    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                }
+                .header {
+                    background-color: #4CAF50;
+                    padding: 15px;
+                    text-align: center;
+                    color: #ffffff;
+                    font-size: 20px;
+                    border-radius: 5px 5px 0 0;
+                }
+                .content {
+                    padding: 20px;
+                    color: #333333;
+                    line-height: 1.6;
+                    text-align: center;
+                }
+                .otp-code {
+                    font-size: 24px;
+                    color: #4CAF50;
+                    font-weight: bold;
+                    margin: 20px 0;
+                }
+                .footer {
+                    text-align: center;
+                    padding: 10px;
+                    font-size: 12px;
+                    color: #777777;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="header">
+                    Xác minh tài khoản của bạn
+                </div>
+                <div class="content">
+                    <p>Chào ${name},</p>
+                    <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi! Để xác thực tài khoản, vui lòng nhập mã OTP dưới đây:</p>
+                    <div class="otp-code">${otpCode}</div>
+                    <p>Mã OTP này sẽ hết hạn sau 5 phút. Vui lòng không chia sẻ mã này với bất kỳ ai để bảo mật tài khoản của bạn.</p>
+                </div>
+                <div class="footer">
+                    <p>Email hỗ trợ: 20210864@eaut.edu.vn</p>
+                    <p>Điện thoại: 0342404775</p>
+                </div>
+            </div>
+        </body>
+      </html>`
     };
 
     let info = await transport.sendMail(mailOptions);

@@ -31,10 +31,11 @@ class CustomerService {
     const foundUser = await UserService.findById(userId);
     // get fâvorite
     const foundFavorite = await favoriteModel.findOne({ user_id: foundUser._id }).lean();
-    if (!foundFavorite) throw new BadRequestError("Không tìm thấy dữ liệu yêu thích của người dùng");
+    if (!foundFavorite) return {
+      favorite: null
+    };
     // slice favorite items
-    const startIndex = (page - 1) * limit;
-    foundFavorite.favorite_items = foundFavorite.favorite_items.slice(startIndex, page * limit);
+    foundFavorite.favorite_items = foundFavorite.favorite_items.slice(0, page * limit);
     // get info product item
     const ProductService = require("./product.service");
     await Promise.all(foundFavorite.favorite_items.map(async (item, index) => {

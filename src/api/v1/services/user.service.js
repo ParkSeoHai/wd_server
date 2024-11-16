@@ -53,6 +53,9 @@ class UserService {
     }
     // add item
     addressItem._id = new mongoose.Types.ObjectId();
+    if (foundUser.address.length === 0) {
+      addressItem.default = true;
+    }
     foundUser.address.push(addressItem);
     const result = await foundUser.save();
     if (!result) throw new BadRequestError("Thêm địa chỉ thất bại");
