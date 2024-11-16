@@ -2,8 +2,8 @@
 
 const { Schema, model } = require("mongoose");
 
-const DOCUMENT_NAME = "product_image"
-const COLLECTION_NAME = "products_images"
+const DOCUMENT_NAME = "product_image";
+const COLLECTION_NAME = "product_images";
 
 const productImageSchema = new Schema({
   product_id: { type: Schema.Types.ObjectId, require: true, ref: "product" },
@@ -16,4 +16,4 @@ const productImageSchema = new Schema({
   timestamps: true
 });
 
-module.exports = model(DOCUMENT_NAME, productImageSchema)
+module.exports = model(DOCUMENT_NAME, productImageSchema);

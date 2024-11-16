@@ -28,7 +28,7 @@ class ProductImageService {
         product_id: productId
       }).lean();
     }
-    return getInfoData({ fields: ["image_url", "type", "alt_text", "order"], data: productImages });
+    return getInfoData({ collection: "product_images", data: productImages });
   }
 }
 

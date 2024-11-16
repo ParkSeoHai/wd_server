@@ -19,6 +19,43 @@ class UserController {
       metadata: await UserService.register(req.body)
     }).send(res);
   }
+
+  getAccount = async (req, res, next) => {
+    const userId = req.params.userId;
+
+    new OKResponse({
+      message: "Lấy thông tin thành công",
+      metadata: await UserService.getAccount(userId)
+    }).send(res);
+  }
+
+  updateInfoAccount = async (req, res, next) => {
+    new OKResponse({
+      message: "Cập nhật thông tin thành công",
+      metadata: await UserService.updateInfoAccount(req.body)
+    }).send(res);
+  }
+
+  addCustomerAddress = async (req, res, next) => {
+    new OKResponse({
+      message: "Thêm địa chỉ mới thành công",
+      metadata: await UserService.addCustomerAddress(req.body)
+    }).send(res);
+  }
+
+  updateCustomerAddress = async (req, res, next) => {
+    new OKResponse({
+      message: "Cập nhật địa chỉ thành công",
+      metadata: await UserService.updateCustomerAddress(req.body)
+    }).send(res);
+  }
+
+  removeCustomerAddress = async (req, res, next) => {
+    new OKResponse({
+      message: "Xóa địa chỉ thành công",
+      metadata: await UserService.removeCustomerAddress(req.body)
+    }).send(res);
+  }
 }
 
 module.exports = new UserController();

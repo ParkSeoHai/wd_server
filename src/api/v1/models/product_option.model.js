@@ -5,6 +5,42 @@ const { Schema, model } = require("mongoose");
 const DOCUMENT_NAME = "product_option";
 const COLLECTION_NAME = "product_options";
 
+// Schema cho các tùy chọn con trong từng giá trị tùy chọn (ví dụ: "Dung lượng", "RAM")
+const SubOptionSchema = new Schema({
+  option_name: { type: String, required: true },
+  option_values: [
+    {
+      value: { type: String, required: true },
+      price_adjustment: { type: Number, default: 0 },
+      stock: { type: Number, default: 0 },
+      shops_available: [
+        {
+          address: String,
+          phone_number: String,
+          url_map: String
+        }
+      ],
+      sub_options: { type: Array, default: [] }
+    }
+  ]
+});
+
+// Schema cho các giá trị của tùy chọn chính (ví dụ: "Màu sắc")
+const OptionValueSchema = new Schema({
+  value: { type: String, required: true },
+  image: { type: String },
+  price_adjustment: { type: Number, default: 0 },
+  stock: { type: Number, default: 0 },
+  shops_available: [
+    {
+      address: String,
+      phone_number: String,
+      url_map: String
+    }
+  ],
+  sub_options: SubOptionSchema
+});
+
 const productOptionSchema = new Schema(
   {
     product_id: {
@@ -13,15 +49,7 @@ const productOptionSchema = new Schema(
       required: true,
     },
     option_name: { type: String, required: true },
-    option_values: [
-      {
-        value: { type: String, required: true },
-        image: { type: String, default: null },
-        price_adjustment: { type: Number, default: 0 },
-        quantity_available: { type: Number, required: true, default: 0 },
-      },
-    ],
-    order: { type: Number },
+    option_values: [OptionValueSchema]
   },
   {
     collection: COLLECTION_NAME,
@@ -29,4 +57,4 @@ const productOptionSchema = new Schema(
   }
 );
 
-module.exports = model(DOCUMENT_NAME, productOptionSchema)
+module.exports = model(DOCUMENT_NAME, productOptionSchema);

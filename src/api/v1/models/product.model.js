@@ -2,11 +2,12 @@
 
 const { Schema, model } = require("mongoose");
 
-const DOCUMENT_NAME = "product"
-const COLLECTION_NAME = "products"
+const DOCUMENT_NAME = "product";
+const COLLECTION_NAME = "products";
 
 const productSchema = new Schema({
   product_name: { type: String, require: true },
+  product_url: { type: String, require: true },
   product_description: String,
   product_price: { type: Number, require: true, default: 0 },
   product_quantity: { type: Number, require: true, default: 0 },
@@ -22,4 +23,4 @@ const productSchema = new Schema({
   timestamps: true
 });
 
-module.exports = model(DOCUMENT_NAME, productSchema)
+module.exports = model(DOCUMENT_NAME, productSchema);

@@ -17,7 +17,7 @@ const orderSchema = new Schema(
         },
         product_name: { type: String, required: true },
         product_thumb: { type: String, required: true },
-        product_price: { type: String, required: true },
+        product_price: { type: Number, required: true },
         options: [
           {
             option_name: { type: String, required: true },

@@ -15,23 +15,35 @@ class AddressShopController {
   getAddressShops = async (req, res, next) => {
     const city = req.query.city;
     const quan_huyen = req.query.quan_huyen;
-    if (city) {
-        if (quan_huyen) {
-            return new OKResponse({
-                message: "Lấy danh sách địa chỉ cửa hàng theo thành phố và quận huyện thành công",
-                metadata: await AddressShopService.getAllByCityAndQuanHuyen(city, quan_huyen)
-            }).send(res);
-        }
 
+    const cities = await AddressShopService.getCitiesAndQuanHuyen();
+
+    if (city) {
+      if (quan_huyen) {
         return new OKResponse({
-            message: "Lấy danh sách địa chỉ cửa hàng theo thành phố thành công",
-            metadata: await AddressShopService.getAllByCity(city)
+          message: "Lấy danh sách địa chỉ cửa hàng theo thành phố và quận huyện thành công",
+          metadata: {
+            addressShops: await AddressShopService.getAllByCityAndQuanHuyen(city, quan_huyen),
+            cities
+          }
         }).send(res);
+      }
+
+      return new OKResponse({
+        message: "Lấy danh sách địa chỉ cửa hàng theo thành phố thành công",
+        metadata: {
+          addressShops: await AddressShopService.getAllByCity(city),
+          cities
+        }
+      }).send(res);
     }
 
     return new OKResponse({
-        message: "Lấy danh sách địa chỉ cửa hàng thành công",
-        metadata: await AddressShopService.getAll()
+      message: "Lấy danh sách địa chỉ cửa hàng thành công",
+      metadata: {
+        addressShops: await AddressShopService.getAll(),
+        cities
+      }
     }).send(res);
   }
 }

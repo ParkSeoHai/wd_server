@@ -3,6 +3,8 @@
 const express = require("express");
 const routes = express.Router();
 
+// route auth
+routes.use("/auth", require("./auth.route"));
 // route product
 routes.use("/product", require("./product.route"));
 // route product_image
@@ -19,5 +21,9 @@ routes.use("/customer", require("./customer.route"));
 routes.use("/category", require("./category.route"));
 // route address_shop
 routes.use("/address_shop", require("./address_shop.route"));
+// route flash sale
+routes.use("/flash_sale", require("./flash_sale.route"));
+// route cart
+routes.use("/cart", require("./cart.route"));
 
 module.exports = routes;

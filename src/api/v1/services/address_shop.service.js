@@ -18,12 +18,7 @@ class AddressShopService {
 
   static getAll = async () => {
     const addressShops = await AddressShopModel.find().lean();
-    return getInfoData({ 
-        fields: [
-            "_id", "name_shop", "country", "city", "quan_huyen", 
-            "xa_phuong", "detail", "phone_number", "uptime", "url_map"
-        ], data: addressShops
-    });
+    return getInfoData({ collection: "address_shop", data: addressShops });
   }
 
   static getAllByCity = async (city) => {
@@ -31,12 +26,7 @@ class AddressShopService {
     const addressShops = await AddressShopModel.find({
         city: { $regex: city, $options: 'i' }
     }).lean();
-    return getInfoData({ 
-        fields: [
-            "_id", "name_shop", "country", "city", "quan_huyen", 
-            "xa_phuong", "detail", "phone_number", "uptime", "url_map"
-        ], data: addressShops
-    });
+    return getInfoData({ collection: "address_shop", data: addressShops });
   }
 
   static getAllByCityAndQuanHuyen = async (city, quan_huyen) => {
@@ -45,12 +35,41 @@ class AddressShopService {
         city: { $regex: city, $options: 'i' },
         quan_huyen: { $regex: quan_huyen, $options: 'i' }
     }).lean();
-    return getInfoData({ 
-        fields: [
-            "_id", "name_shop", "country", "city", "quan_huyen", 
-            "xa_phuong", "detail", "phone_number", "uptime", "url_map"
-        ], data: addressShops
+    return getInfoData({ collection: "address_shop", data: addressShops });
+  }
+
+  static getCitiesAndQuanHuyen = async () => {
+    /**
+     * city: [
+     *  {
+     *    name: "HaNoi",
+     *    quan_huyen: [
+     *      name: "Cầu Giay"
+     *    ]
+     *  }
+     * ]
+     */
+    const cities = [];
+
+    // Get all address
+    const addressShops = await AddressShopModel.find().lean();
+    
+    addressShops.forEach(address => {
+      let exist = false;
+      cities.forEach(city => {
+        // if city exist -> push quan_huyen to array of city
+        if (city.name.includes(address.city)) {
+          exist = true;
+          city.quan_huyen.push(address.quan_huyen);
+        }
+      });
+
+      if (!exist) {
+        cities.push({ name: address.city, quan_huyen: [address.quan_huyen] })
+      }
     });
+
+    return cities;
   }
 }
 
