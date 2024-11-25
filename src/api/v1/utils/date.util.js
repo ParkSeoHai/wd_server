@@ -16,7 +16,22 @@ const formatTimestamp = (timestamp) => {
     return `${day}/${month} ${hours}:${minutes}`;
 }
 
+const formatIsoDateToDateTime = (isoStr) => {
+    const date = new Date(isoStr);
+    const newDate = date.toLocaleString("vi-VN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZone: "Asia/Ho_Chi_Minh",
+    });
+    return newDate;
+}
+
 module.exports = {
     convertStringToTimestamp,
-    formatTimestamp
+    formatTimestamp,
+    formatIsoDateToDateTime
 };

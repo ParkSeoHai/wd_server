@@ -14,6 +14,12 @@ class UserService {
   //   return foundUser;
   // }
 
+  static getInfoReview = async (userId) => {
+    const foundUser = await userModel.findById(userId).lean();
+    if (!foundUser) throw new AuthFailureError("Không tìm thấy người dùng");
+    return getInfoData({ fieldsImportant: ["name", "avatar"], data: foundUser });
+  }
+
   static findById = async (userId) => {
     const foundUser = await userModel.findById(userId);
     if (!foundUser) throw new AuthFailureError("Không tìm thấy người dùng");

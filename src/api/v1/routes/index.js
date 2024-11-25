@@ -25,5 +25,7 @@ routes.use("/address_shop", require("./address_shop.route"));
 routes.use("/flash_sale", require("./flash_sale.route"));
 // route cart
 routes.use("/cart", require("./cart.route"));
+// route review
+routes.use("/review", require("./review.route"));
 
 module.exports = routes;
