@@ -29,9 +29,9 @@ app.use(require("./api/routes"));
 require('./api/v1/dbs/init.mongo');
 // config cloudinary
 cloudinary.config({ 
-    cloud_name: 'dm0czde4x', 
-    api_key: '549139983968566', 
-    api_secret: '4WO2sOPEJMrW91K0KVEFJXO2VFE',
+    cloud_name: process.env.CLOUD_NAME, 
+    api_key: process.env.CLOUD_API_KEY, 
+    api_secret: process.env.CLOUD_API_SECRET,
     secure: true,
 });
 
