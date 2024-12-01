@@ -12,8 +12,8 @@ const {
 
 class ProductService {
   static checkProduct = async (id) => {
-    let product = await ProductModel.findById(id).lean();
-    if (!product) throw new BadRequestError("Sản phẩm không được tìm thấy");
+    let product = await ProductModel.findById(id);
+    if (!product) throw new BadRequestError("Sản phẩm không tồn tại");
     return product;
   }
 
@@ -42,7 +42,7 @@ class ProductService {
     const products = await ProductModel.find(query).sort(sort).skip(skipDoc).limit(limit).lean();
     // Get info product
     await Promise.all(products.map(async (product, index) => {
-      products[index] = await this.getInfoProduct(product._id);
+      products[index] = await this.getInfoProduct(product._id, null);
     }));
     return {
       products,
@@ -93,7 +93,7 @@ class ProductService {
     const flash_sale = await this.getInfoFlashSale(foundProduct._id);
 
     // Get discount
-    if (flash_sale.discount >= 0) {
+    if (flash_sale?.discount >= 0) {
       foundProduct.product_discount = flash_sale.discount;
     }
 
@@ -119,7 +119,7 @@ class ProductService {
     return product;
   }
 
-  static getInfoProduct = async (productId) => {
+  static getInfoProduct = async (productId, option) => {
     // get info data product
     const product = await this.getById(productId);
     // Get info flashsale if exist
@@ -127,6 +127,27 @@ class ProductService {
     // Get discount
     if (product.flash_sale) {
       product.product_discount = product.flash_sale.discount;
+    }
+    if (option) {
+      const optionProduct = await ProductOptionService.findByProductId(product._id);
+      let price_adjustment = 0;
+      // Lặp qua các giá trị tùy chọn chính
+      for (const item of optionProduct.option_values) {
+        if (item._id.toString() === option.option_id.toString()) {
+          price_adjustment = item.price_adjustment || 0;
+          // Kiểm tra tùy chọn con
+          if (option.sub_option) {
+            for (const subOption of item.sub_options?.option_values || []) {
+              if (subOption._id.toString() === option.sub_option.option_id.toString()) {
+                price_adjustment = subOption.price_adjustment || 0;
+                break;
+              }
+            }
+          }
+          break;
+        }
+      }
+      product.product_price += price_adjustment;
     }
     // Price sale
     product.product_price_sale = calcProductPriceSale({ 
@@ -180,6 +201,13 @@ class ProductService {
       }
     }
     return info;
+  }
+
+  static updateProductQuantity = async (productId, quantityChange) => {
+    await ProductModel.updateOne(
+      { _id: productId },
+      { $inc: { product_quantity: quantityChange } }
+    );
   }
 }
 

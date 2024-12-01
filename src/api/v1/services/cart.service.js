@@ -4,17 +4,28 @@ const CartModel = require('../models/cart.model');
 const { BadRequestError } = require("../core/error.response");
 const { getInfoData } = require('../utils');
 const { UserService } = require("./");
+const ProductService = require("./product.service");
 
 class CartService {
     static getCart = async (userId) => {
         // check user
         const user = await UserService.findById(userId);
         // get cart
-        const foundCart = await CartModel.findOne({ user_id: user._id });
+        const foundCart = await CartModel.findOne({ user_id: user._id }).lean();
         if (!foundCart) return { cart_items: [] };
+        let total_quantity = 0, total_price = 0;
+        await Promise.all(foundCart.cart_items.map(async (item, index) => {
+            const product = await ProductService.getInfoProduct(item.product_id, item.option);
+            const infoDataProduct = getInfoData({ collection: "cart_item", data: product });
+            foundCart.cart_items[index] = { ...infoDataProduct, ...item };
+            foundCart.cart_items[index].product_thumb = product.imageThumbs[0]?.image_url;
+            total_quantity += item.quantity;
+            total_price += product.product_price_sale * item.quantity;
+        }));
         // get total quantity cart
-        const total_quantity = foundCart.cart_items.reduce((total, item) => total += item.quantity, 0);
         foundCart.total_quantity = total_quantity;
+        // get total price
+        foundCart.total_price = total_price;
         return getInfoData({ collection: "carts", fieldsOption: ["total_quantity"], data: foundCart });
     }
 
@@ -50,8 +61,6 @@ class CartService {
             // Nếu sản phẩm chưa có trong giỏ hàng, thêm mới
             foundCart.cart_items.push(cartItem);
         }
-        // Cập nhật tổng giá
-        this.updateTotalPrice(foundCart);
         // save
         const result = await foundCart.save();
         if (!result) throw new BadRequestError("Thêm sản phẩm vào giỏ hàng thất bại");
@@ -66,8 +75,6 @@ class CartService {
         foundCart.cart_items = foundCart.cart_items.filter(
             (item) => item._id.toString() !== cartItemId.toString()
         );
-        // Cập nhật lại tổng giá
-        this.updateTotalPrice(foundCart);
         // save
         const result = await foundCart.save();
         if (!result) throw new BadRequestError("Xóa sản phẩm giỏ hàng thất bại");
@@ -88,8 +95,6 @@ class CartService {
         if (cartItem.quantity <= 0) {
             cartItem.quantity = 1;
         }
-        // Cập nhật lại tổng giá
-        this.updateTotalPrice(foundCart);
         // save
         const result = await foundCart.save();
         if (!result) throw new BadRequestError("Cập nhật số lượng sản phẩm giỏ hàng thất bại");
@@ -102,6 +107,14 @@ class CartService {
             const itemTotalPrice = item.price_at_added * item.quantity;
             return total + itemTotalPrice;
         }, 0);
+    }
+
+    static getCartByUserId = async (userId) => {
+        // check user
+        const user = await UserService.findById(userId);
+        // get cart
+        const foundCart = await CartModel.findOne({ user_id: user._id });
+        return foundCart;
     }
 }
 

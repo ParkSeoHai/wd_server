@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const { default: helmet } = require("helmet");
 const compression = require("compression");
 const cors = require("cors");
+const cloudinary = require("cloudinary").v2;
 
 require("dotenv").config();
 
@@ -26,6 +27,13 @@ app.use(require("./api/routes"));
 
 // init db
 require('./api/v1/dbs/init.mongo');
+// config cloudinary
+cloudinary.config({ 
+    cloud_name: process.env.CLOUD_NAME, 
+    api_key: process.env.CLOUD_API_KEY, 
+    api_secret: process.env.CLOUD_API_SECRET,
+    secure: true,
+});
 
 // handling error
 app.use((req, res, next) => {

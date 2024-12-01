@@ -2,7 +2,7 @@
 
 const ProductOptionModel = require('../models/product_option.model');
 
-const { BadRequestError } = require("../core/error.response");
+const { BadRequestError, NotFoundError } = require("../core/error.response");
 const { getInfoData } = require('../utils');
 
 class ProductOptionService {
@@ -18,8 +18,14 @@ class ProductOptionService {
   }
 
   static findByProductId = async (productId) => {
-    const productOptions = await ProductOptionModel.findOne({product_id: productId}).lean();
+    const productOptions = await this.getByProductId(productId);
     return getInfoData({ collection: "product_options", data: productOptions });
+  }
+
+  static getByProductId = async (productId) => {
+    const option = await ProductOptionModel.findOne({product_id: productId});
+    if (!option) throw new NotFoundError("Option không tồn tại");
+    return option;
   }
 }
 

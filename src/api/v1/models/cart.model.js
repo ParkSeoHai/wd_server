@@ -17,11 +17,6 @@ const CartItemOptionSchema = new Schema({
 
 const CartItemSchema = new Schema({
   product_id: { type: Schema.Types.ObjectId, ref: "product", required: true },
-  product_name: { type: String, required: true },
-  product_thumb: { type: String, required: true },
-  product_url: { type: String, required: true },
-  price_at_added: { type: Number, required: true },
-  discount_at_added: { type: Number, required: true },
   option: CartItemOptionSchema,
   quantity: { type: Number, required: true }
 });
@@ -30,7 +25,6 @@ const cartSchema = new Schema(
   {
     user_id: { type: Schema.Types.ObjectId, ref: "user", required: true },
     cart_items: [CartItemSchema],
-    total_price: { type: Number, required: true, default: 0 }
   },
   {
     collection: COLLECTION_NAME,
