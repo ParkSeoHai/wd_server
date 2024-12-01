@@ -34,9 +34,18 @@ const getInfoData = ({ collection = null, fieldsImportant = [], fieldsOption = [
     } else if (collection === "product_favorites") {
         fields = ["_id", "favorite_items"];
     } else if (collection === "reviews") {
-        fields = ["_id", "rating", "review_text", "createdAt"];
+        fields = ["_id", "rating", "review_text", "imageReviews", "createdAt"];
     } else if (collection === "rating_summary") {
         fields = ["_id", "total_reviews", "average_rating", "ratings_by_stars"];
+    } else if (collection === "cart_item") {
+        fields = [
+            "product_id", "product_name", "product_url", "product_price", "product_quantity",
+            "product_discount", "flash_sale", "product_price_sale"
+        ];
+    } else if (collection === "orders") {
+        fields = [
+            "_id", "user_id", "order_items", "total_amount", "status"
+        ];
     }
 
     const newFields = fields.concat(fieldsOption);

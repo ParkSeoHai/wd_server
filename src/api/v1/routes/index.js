@@ -27,5 +27,7 @@ routes.use("/flash_sale", require("./flash_sale.route"));
 routes.use("/cart", require("./cart.route"));
 // route review
 routes.use("/review", require("./review.route"));
+// route order
+routes.use("/order", require("./order.router"));
 
 module.exports = routes;

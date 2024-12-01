@@ -24,6 +24,22 @@ class FlashSaleService {
     return newFlashSale;
   }
 
+  static updateFlashSaleItemQuantity = async (productId, quantityChange) => {
+    // Tăng số lượng sản phẩm đã bán
+    // get current time
+    const currentTime = Math.floor(new Date().getTime() / 1000);
+    const flashSale = await FlashSaleModel.findOne({ end_time: { $gt: currentTime } });
+    if (flashSale) {
+      flashSale.flash_sale_items.forEach(item => {
+        if (item.product_id.toString() === productId.toString()) {
+          item.quantity_sold += quantityChange;
+        }
+      });
+      await flashSale.save();
+    }
+    return flashSale;
+  }
+
   static getFlashSaleDetail = async ({ page = 1, limit = 15 }) => {
     const skipItem = limit * (page - 1);
     let message = "Lấy dữ liệu flash sale thành công";
