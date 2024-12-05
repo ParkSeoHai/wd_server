@@ -1,5 +1,7 @@
 "use strict";
 
+const { InternalServerError } = require("../core/error.response");
+
 const cloudinary = require("cloudinary").v2;
 
 const uploadFileImg = async (file, folderName) => {
