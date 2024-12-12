@@ -64,6 +64,16 @@ class ProductController {
       options
     }).send(res);
   }
+
+  getAllCrud = async (req, res, next) => {
+    const { products, options } = await ProductService.getAllCrud(req.body);
+    
+    new OKResponse({
+      message: 'Lấy danh sách sản phẩm thành công',
+      metadata: { data: products },
+      options
+    }).send(res);
+  }
 }
 
 module.exports = new ProductController();

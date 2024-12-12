@@ -209,6 +209,26 @@ class ProductService {
       { $inc: { product_quantity: quantityChange } }
     );
   }
+
+  static getAllCrud = async ({ columns, page = 1, size = 15, searchQuery }) => {
+    let query = {};
+    if (searchQuery?.$or?.length > 0) query = searchQuery;
+
+    let products = await ProductModel.find(query).skip((page - 1) * size).limit(size).lean();
+    await Promise.all(products.map(async (product, index) => {
+      // image thumbs
+      const imageThumbs = await ProductImageService.findByProductId({ productId: product._id, type: "thumbnail" });
+      products[index].product_thumb = imageThumbs[0]?.image_url;
+    }));
+    products = getInfoData({ fieldsImportant: [...columns, "_id"], data: products });
+    console.log("options");
+    // get options
+    let options = {
+      page, size, totalSize: await this.getCountDocument({ query })
+    };
+    
+    return { products, options };
+  }
 }
 
 module.exports = ProductService;
