@@ -101,6 +101,38 @@ class UserService {
     if (!result) throw new BadRequestError("Xóa địa chỉ thất bại");
     return getInfoData({ fieldsImportant: "address", data: result });
   }
+
+  static getCountDocument = async ({ query = {} }) => {
+    return await userModel.countDocuments(query);
+  }
+
+  static getAllCrud = async ({ columns, page = 1, size = 15, searchQuery }) => {
+    let query = {};
+    if (searchQuery?.$or?.length > 0) query = searchQuery;
+    
+    const users = await userModel.find(query).skip((page - 1) * size).limit(size).lean();
+    // get options
+    let options = {
+      page, size, totalSize: await this.getCountDocument({ query: {} })
+    };
+
+    return { users: getInfoData({ fieldsImportant: [...columns, "_id"], data: users }), options };
+  }
+
+  static addOrUpdateCrud = async ({ data }) => {
+    const filter = { _id: new mongoose.Types.ObjectId(data.id) };
+    const result = await userModel.findOneAndUpdate(filter, data, {
+      new: true,
+      upsert: true
+    });
+    return { id: result._id };
+  }
+
+  static getByIdCrud = async (userId) => {
+    const foundUser = await userModel.findById(userId);
+    if (!foundUser) throw new AuthFailureError("Không tìm thấy người dùng");
+    return foundUser;
+  }
 }
 
 module.exports = UserService

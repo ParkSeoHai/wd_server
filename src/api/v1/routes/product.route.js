@@ -17,4 +17,7 @@ router.get("/new/all", asyncHandler(ProductController.getProductsNew));
 // Create product
 router.post("/", asyncHandler(ProductController.createProduct));
 
+// Get all products crud
+router.post("/crud/getAll", asyncHandler(ProductController.getAllCrud));
+
 module.exports = router;

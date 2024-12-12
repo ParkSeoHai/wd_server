@@ -56,6 +56,32 @@ class UserController {
       metadata: await UserService.removeCustomerAddress(req.body)
     }).send(res);
   }
+
+  getAllCrud = async (req, res, next) => {
+    const { users, options } = await UserService.getAllCrud(req.body);
+
+    new OKResponse({
+      message: "Lấy dữ liệu người dùng thành công",
+      metadata: { data: users },
+      options
+    }).send(res);
+  }
+
+  addOrUpdateCrud = async (req, res, next) => {
+    new CreatedResponse({
+      message: "Thành công",
+      metadata: await UserService.addOrUpdateCrud(req.body)
+    }).send(res);
+  }
+
+  getByIdCrud = async (req, res, next) => {
+    const userId = req.params.userId;
+
+    new OKResponse({
+      message: "Lấy dữ liệu người dùng thành công",
+      metadata: await UserService.getByIdCrud(userId)
+    }).send(res);
+  }
 }
 
 module.exports = new UserController();
