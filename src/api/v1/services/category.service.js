@@ -97,6 +97,12 @@ class CategoryService {
 
     return breadCrumbs;
   }
+
+  // Ham get all category crud
+  static getAllCategories = async () => {
+    const categories = await CategoryModel.find().lean();
+    return getInfoData({ fieldsImportant: ["category_name", "_id"], data: categories });
+  }
 }
 
 module.exports = CategoryService;

@@ -25,7 +25,8 @@ const userSchema = new Schema({
       phone_number: String,
       default: Boolean
     }
-  ]
+  ],
+  is_delete: { type: Boolean, default: false }
 }, {
   collection: COLLECTION_NAME,
   timestamps: true

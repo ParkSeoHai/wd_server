@@ -3,12 +3,13 @@
 const ProductModel = require('../models/product.model');
 
 const { BadRequestError } = require("../core/error.response");
-const { getInfoData, calcProductPriceSale } = require('../utils');
+const { getInfoData, calcProductPriceSale, uploadFileImg } = require('../utils');
 
 const {
   ProductImageService, ProductDetailService,
   ProductOptionService, CategoryService
 } = require("./");
+const { default: mongoose } = require('mongoose');
 
 class ProductService {
   static checkProduct = async (id) => {
@@ -211,8 +212,13 @@ class ProductService {
   }
 
   static getAllCrud = async ({ columns, page = 1, size = 15, searchQuery }) => {
-    let query = {};
-    if (searchQuery?.$or?.length > 0) query = searchQuery;
+    let query = {
+      publish: true,
+    };
+    if (searchQuery?.$or?.length > 0) query = {
+      ...query,
+      searchQuery
+    };
 
     let products = await ProductModel.find(query).skip((page - 1) * size).limit(size).lean();
     await Promise.all(products.map(async (product, index) => {
@@ -228,6 +234,101 @@ class ProductService {
     };
     
     return { products, options };
+  }
+
+  static addOrUpdateCrud = async ({ data, action }) => {
+    if (data.id) {
+      await this.checkProduct(data.id);
+    }
+    // add or update product
+    const filter = { _id: new mongoose.Types.ObjectId(data.id) };
+    const dataProduct = {
+      product_name: data.product_name,
+      product_description: data.product_description,
+      product_price: data.product_price,
+      product_quantity: data.product_quantity,
+      product_discount: data.product_discount,
+      brand_name: data.brand_name,
+      publish: data.publish,
+      category_id: data.category_id,
+      product_type: data.product_type,
+      product_url: data.product_url
+    };
+    const result = await ProductModel.findOneAndUpdate(filter, dataProduct, {
+      new: true,
+      upsert: true
+    });
+    // add product thumbnail
+    if (data.product_thumbnail) {
+      // remove all product image old
+      await ProductImageService.removeAllByProductId({ product_id: result._id, type: "thumbnail" });
+      const resUpload = await uploadFileImg(data.product_thumbnail, "wdsmart-product", { width: 358, height: 358 });
+      await ProductImageService.createProductImage({
+        product_id: result._id, alt_text: data.product_name, order: 1, type: "thumbnail", image_url: resUpload.url
+      });
+    }
+    // add product gallery
+    if (data.product_gallery?.length > 0) {
+      // remove all product image old
+      await ProductImageService.removeAllByProductId({ product_id: result._id, type: "gallery" });
+      for (const image of data.product_gallery) {
+        const resUpload = await uploadFileImg(image, "wdsmart-product");
+        await ProductImageService.createProductImage({
+          product_id: result._id, alt_text: data.product_name, order: 1, type: "gallery", image_url: resUpload.url
+        });
+      }
+    }
+    // add product option
+    if (data.product_options?.length > 0) {
+      // remove product option old
+      await ProductOptionService.removeByProductId(result._id);
+      let option_name = "";
+      let option_values = [];
+      for (const option of data.product_options) {
+        option_name = option.option_name;
+        option_values.push({
+          image: option.option_image,
+          value: option.option_value,
+          price_adjustment: Number(option.price_adjustment),
+          stock: Number(option.stock)
+        })
+      }
+      await ProductOptionService.addProductOption({ product_id: result._id, option_name, option_values });
+    }
+    return { id: result._id };
+  }
+
+  static getByIdCrud = async (productId) => {
+    const foundProduct = await ProductModel.findOne({ _id: productId }).lean();
+    if (!foundProduct) throw new BadRequestError("Không tìm thấy sản phẩm");
+    // get image thumnail
+    const thumbnails = await ProductImageService.findByProductId({ productId: foundProduct._id, type: "thumbnail" });
+    foundProduct.product_thumbnail = thumbnails[0]?.image_url;
+    // get image gallery
+    foundProduct.product_gallery = [];
+    const galleries = await ProductImageService.findByProductId({ productId: foundProduct._id, type: "gallery" });
+    for (const gallery of galleries) {
+      foundProduct.product_gallery.push(gallery.image_url);
+    }
+    // get product option
+    foundProduct.product_options = [];
+    const option = await ProductOptionService.findByProductId(foundProduct._id);
+    for (const optionItem of option.option_values) {
+      foundProduct.product_options.push({
+        option_image: optionItem.image,
+        option_name: option.option_name,
+        option_value: optionItem.value,
+        price_adjustment: optionItem.price_adjustment,
+        stock: optionItem.stock
+      });
+    }
+    return foundProduct;
+  }
+
+  static deleteByIdCrud = async ({ id }) => {
+    const foundProduct = await this.checkProduct(id);
+    foundProduct.publish = false;
+    return await foundProduct.save();
   }
 }
 

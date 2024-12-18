@@ -16,5 +16,6 @@ router.post("/customerAddress/remove", asyncHandler(userController.removeCustome
 router.post("/crud/getAll", asyncHandler(userController.getAllCrud));
 router.get("/crud/getById/:userId", asyncHandler(userController.getByIdCrud));
 router.post("/crud/addOrUpdate", asyncHandler(userController.addOrUpdateCrud));
+router.post("/crud/deleteById", asyncHandler(userController.deleteByIdCrud));
 
-module.exports = router
+module.exports = router;

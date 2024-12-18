@@ -27,6 +27,13 @@ class CategoryController {
       metadata: await CategoryService.getSubcategories(categoryUrl)
     }).send(res);
   }
+
+  getAllCategories = async (req, res, next) => {
+    new OKResponse({
+      message: "Lấy dữ liệu danh mục thành công",
+      metadata: await CategoryService.getAllCategories()
+    }).send(res);
+  }
 }
 
 module.exports = new CategoryController();

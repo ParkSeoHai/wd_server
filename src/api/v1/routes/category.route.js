@@ -12,4 +12,7 @@ router.get("/sub/:category_url", asyncHandler(CategoryrController.getSubCategori
 
 router.post("/", asyncHandler(CategoryrController.create));
 
+// get all categories crud
+router.get("/getAllCategories", asyncHandler(CategoryrController.getAllCategories));
+
 module.exports = router
