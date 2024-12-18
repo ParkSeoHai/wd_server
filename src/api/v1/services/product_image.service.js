@@ -30,6 +30,18 @@ class ProductImageService {
     }
     return getInfoData({ collection: "product_images", data: productImages });
   }
+
+  static removeAllByProductId = async ({ product_id, type = "any" }) => {
+    if (type !== "any") {
+      await ProductImageModel.deleteMany({
+        product_id, type
+      });
+    } else {
+      await ProductImageModel.deleteMany({
+        product_id
+      });
+    }
+  }
 }
 
 module.exports = ProductImageService;

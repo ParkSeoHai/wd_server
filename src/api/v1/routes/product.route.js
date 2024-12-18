@@ -19,5 +19,8 @@ router.post("/", asyncHandler(ProductController.createProduct));
 
 // Get all products crud
 router.post("/crud/getAll", asyncHandler(ProductController.getAllCrud));
+router.get("/crud/getById/:productId", asyncHandler(ProductController.getByIdCrud));
+router.post("/crud/addOrUpdate", asyncHandler(ProductController.addOrUpdateCrud));
+router.post("/crud/deleteById", asyncHandler(ProductController.deleteByIdCrud));
 
 module.exports = router;

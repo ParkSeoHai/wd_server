@@ -74,6 +74,29 @@ class ProductController {
       options
     }).send(res);
   }
+
+  addOrUpdateCrud = async (req, res, next) => {
+    new CreatedResponse({
+      message: 'Thành công',
+      metadata: await ProductService.addOrUpdateCrud(req.body)
+    }).send(res);
+  }
+
+  getByIdCrud = async (req, res, next) => {
+    const productId = req.params.productId;
+
+    new OKResponse({
+      message: "Lấy dữ liệu sản phẩm thành công",
+      metadata: await ProductService.getByIdCrud(productId)
+    }).send(res);
+  }
+
+  deleteByIdCrud = async (req, res, next) => {
+    new OKResponse({
+      message: "Xóa sản phẩm thành công",
+      metadata: await ProductService.deleteByIdCrud(req.body)
+    }).send(res);
+  }
 }
 
 module.exports = new ProductController();

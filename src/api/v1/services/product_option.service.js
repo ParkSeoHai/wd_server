@@ -27,6 +27,10 @@ class ProductOptionService {
     if (!option) throw new NotFoundError("Option không tồn tại");
     return option;
   }
+
+  static removeByProductId = async (productId) => {
+    await ProductOptionModel.deleteMany({product_id: productId})
+  }
 }
 
 module.exports = ProductOptionService;

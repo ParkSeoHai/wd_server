@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 
 const userModel = require('../models/user.model');
 const { BadRequestError, AuthFailureError } = require("../core/error.response");
-const { getInfoData } = require('../utils');
+const { getInfoData, uploadFileImg } = require('../utils');
 const { default: mongoose } = require('mongoose');
 
 class UserService {
@@ -107,20 +107,31 @@ class UserService {
   }
 
   static getAllCrud = async ({ columns, page = 1, size = 15, searchQuery }) => {
-    let query = {};
-    if (searchQuery?.$or?.length > 0) query = searchQuery;
+    let query = { is_delete: false };
+    if (searchQuery?.$or?.length > 0) query = { ...query, ...searchQuery };
     
     const users = await userModel.find(query).skip((page - 1) * size).limit(size).lean();
     // get options
     let options = {
-      page, size, totalSize: await this.getCountDocument({ query: {} })
+      page, size, totalSize: await this.getCountDocument({ query: { is_delete: false } })
     };
 
     return { users: getInfoData({ fieldsImportant: [...columns, "_id"], data: users }), options };
   }
 
-  static addOrUpdateCrud = async ({ data }) => {
+  static addOrUpdateCrud = async ({ data, action }) => {
+    // check email exist
+    if (data.email && action === "add") {
+      const checkUser = await userModel.findOne({ email: data.email, is_delete: false }).lean();
+      if (checkUser) throw new BadRequestError("Email đã được sử dụng");
+    }
+
     const filter = { _id: new mongoose.Types.ObjectId(data.id) };
+    if (data.avatar) {
+      const resUpload = await uploadFileImg(data.avatar, "wdsmart-avatar", { width: 480, height: 480 });
+      data.avatar = resUpload.url;
+    }
+    
     const result = await userModel.findOneAndUpdate(filter, data, {
       new: true,
       upsert: true
@@ -129,9 +140,15 @@ class UserService {
   }
 
   static getByIdCrud = async (userId) => {
-    const foundUser = await userModel.findById(userId);
-    if (!foundUser) throw new AuthFailureError("Không tìm thấy người dùng");
+    const foundUser = await userModel.findOne({ _id: userId, is_delete: false });
+    if (!foundUser) throw new BadRequestError("Không tìm thấy người dùng");
     return foundUser;
+  }
+
+  static deleteByIdCrud = async ({ id }) => {
+    const foundUser = await this.findById(id);
+    foundUser.is_delete = true;
+    return await foundUser.save();
   }
 }
 

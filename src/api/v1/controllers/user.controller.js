@@ -82,6 +82,13 @@ class UserController {
       metadata: await UserService.getByIdCrud(userId)
     }).send(res);
   }
+
+  deleteByIdCrud = async (req, res, next) => {
+    new OKResponse({
+      message: "Xóa người dùng thành công",
+      metadata: await UserService.deleteByIdCrud(req.body)
+    }).send(res);
+  }
 }
 
 module.exports = new UserController();
